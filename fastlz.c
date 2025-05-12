@@ -24,6 +24,7 @@
 #include "fastlz.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
@@ -225,7 +226,9 @@ static int fastlz1_compress(const void* input, int length, void* output) {
   const uint8_t* ip_limit = ip + length - 12 - 1;
   uint8_t* op = (uint8_t*)output;
 
-  uint32_t htab[HASH_SIZE];
+  /* uint32_t htab[HASH_SIZE]; */
+  uint32_t *htab = malloc(sizeof(uint32_t)*HASH_SIZE);
+  if (htab == NULL) return -1;
   uint32_t seq, hash;
 
   /* initializes hash table */
@@ -277,6 +280,7 @@ static int fastlz1_compress(const void* input, int length, void* output) {
   uint32_t copy = (uint8_t*)input + length - anchor;
   op = flz_literals(copy, anchor, op);
 
+  free(htab);
   return op - (uint8_t*)output;
 }
 
@@ -359,7 +363,9 @@ static int fastlz2_compress(const void* input, int length, void* output) {
   const uint8_t* ip_limit = ip + length - 12 - 1;
   uint8_t* op = (uint8_t*)output;
 
-  uint32_t htab[HASH_SIZE];
+  /* uint32_t htab[HASH_SIZE]; */
+  uint32_t *htab = malloc(sizeof(uint32_t)*HASH_SIZE);
+  if (htab == NULL) return -1;
   uint32_t seq, hash;
 
   /* initializes hash table */
@@ -423,6 +429,7 @@ static int fastlz2_compress(const void* input, int length, void* output) {
   /* marker for fastlz2 */
   *(uint8_t*)output |= (1 << 5);
 
+  free(htab);
   return op - (uint8_t*)output;
 }
 
